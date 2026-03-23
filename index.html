@@ -1,8 +1,11 @@
-<!DOCTYPE html><html lang="pt">
+<!DOCTYPE html>
+<html lang="pt">
 <head>
 <meta charset="UTF-8">
-<title>Controle Meta 98%</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"><style>
+<title>Platinum 98%</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
 
 body{
 font-family: Arial;
@@ -21,6 +24,14 @@ box-shadow:0 4px 10px rgba(0,0,0,0.1);
 
 h1{
 text-align:center;
+}
+
+.aviso{
+background:#fff3cd;
+padding:10px;
+border-radius:6px;
+font-size:14px;
+margin-bottom:15px;
 }
 
 label{
@@ -51,59 +62,145 @@ font-size:18px;
 line-height:1.6;
 }
 
-.good{color:green;}
-.warn{color:orange;}
-.bad{color:red;}
+.progress{
+width:100%;
+height:22px;
+background:#ddd;
+border-radius:10px;
+overflow:hidden;
+margin-top:10px;
+margin-bottom:15px;
+}
 
-</style></head><body><div class="container"><h1>Meta 98%</h1><label>Pacotes</label>
+.bar{
+height:100%;
+color:white;
+text-align:center;
+line-height:22px;
+font-size:14px;
+font-weight:bold;
+transition:0.5s;
+}
+
+.green{background:#2e7d32;}
+.yellow{background:#f9a825;}
+.red{background:#c62828;}
+
+.good{color:green;}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Platinum 98%</h1>
+
+<div class="aviso">
+⚠ Média considerada: <b>70 pacotes por rota</b>
+</div>
+
+<label>Pacotes</label>
 <input type="number" id="pacotes">
 
 <label>Insucessos</label>
 <input type="number" id="insucessos">
 
+<label>Reclamações</label>
+<input type="number" id="reclamacoes">
+
 <button onclick="calcular()">Calcular</button>
 
-<div class="result" id="resultado"></div></div><script>
+<div class="result" id="resultado"></div>
+
+</div>
+
+<script>
 
 function calcular(){
 
 let p = Number(document.getElementById("pacotes").value);
 let i = Number(document.getElementById("insucessos").value);
+let r = Number(document.getElementById("reclamacoes").value);
 
 if(p<=0){
 document.getElementById("resultado").innerHTML="Digite valores válidos";
 return;
 }
 
+/* SUCESSO 98% */
 let s = p - i;
-
 let sucesso = (s/p)*100;
 
-/* pacotes perfeitos necessários */
-let falta = Math.ceil((0.98*p - s)/0.02);
-
-if(falta < 0){
-falta = 0;
+/* PACOTES PARA 98% */
+let falta = 0;
+while(((s + falta) / (p + falta)) < 0.98){
+    falta++;
 }
 
-/* saldo de insucessos permitido */
+/* ROTAS 98% */
+let rotas98 = Math.ceil(falta / 70);
+
+/* SALDO INSUCESSOS */
 let maxInsucesso = Math.floor(p*0.02);
 let saldo = maxInsucesso - i;
 
-let classe="bad";
+/* RECLAMAÇÃO 99,70% */
+let sucessoRec = ((p - r) / p) * 100;
 
-if(sucesso>=98){classe="good";}
-else if(sucesso>=97){classe="warn";}
+/* PACOTES PARA 99,70% */
+let faltaRec = 0;
+while(((p - r + faltaRec) / (p + faltaRec)) < 0.997){
+    faltaRec++;
+}
 
+/* ROTAS 99,70% */
+let rotasRec = Math.ceil(faltaRec / 70);
+
+/* CORES */
+let corBar = "red";
+if(sucesso>=98){corBar="green";}
+else if(sucesso>=97){corBar="yellow";}
+
+let corBarRec = sucessoRec>=99.7 ? "green" : "yellow";
+
+/* META ATINGIDA */
+let msgRec = "";
+if(sucessoRec>=99.7){
+    faltaRec = 0;
+    rotasRec = 0;
+    msgRec = "✅ Meta atingida!";
+}
+
+/* RESULTADO */
 document.getElementById("resultado").innerHTML=
 
-"<div class='"+classe+"'><b>Sucesso:</b> "+sucesso.toFixed(2)+"%</div>"+
+"<div><b>Sucesso:</b> "+sucesso.toFixed(2)+"%</div>"+
 
-"<div><b>Pacotes necessários para chegar a 98%:</b> "+falta+"</div>"+
+"<div class='progress'><div class='bar "+corBar+"' style='width:"+sucesso+"%'>"+sucesso.toFixed(1)+"%</div></div>"+
 
-"<div><b>Saldo de insucessos permitido:</b> "+saldo+"</div>";
+"<div><b>Pacotes necessários para 98%:</b> "+falta+"</div>"+
+
+"<div><b>Rotas necessárias:</b> "+falta+" ÷ 70 = "+rotas98+"</div>"+
+
+"<div><b>Saldo de insucessos permitido:</b> "+saldo+"</div>"+
+
+"<hr>"+
+
+"<div><b>Reclamação:</b> "+sucessoRec.toFixed(2)+"%</div>"+
+
+"<div class='progress'><div class='bar "+corBarRec+"' style='width:"+sucessoRec+"%'>"+sucessoRec.toFixed(1)+"%</div></div>"+
+
+"<div><b>Pacotes necessários para 99,70%:</b> "+faltaRec+"</div>"+
+
+"<div><b>Rotas necessárias:</b> "+faltaRec+" ÷ 70 = "+rotasRec+"</div>"+
+
+"<div class='good'>"+msgRec+"</div>";
 
 }
 
-</script></body>
-</html> 
+</script>
+
+</body>
+</html>
